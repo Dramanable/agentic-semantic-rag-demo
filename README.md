@@ -105,7 +105,23 @@ retrieve → grade ─┬─ relevant ──────────────
 - **Prometheus metrics** on `/metrics`: `http_requests_total`, `http_request_duration_seconds`,
   `rag_questions_total{grounded}`, `rag_step_duration_seconds{step}`, `rag_first_token_seconds`, `rag_rewrites_total`.
   `docker compose --profile observability up` adds Prometheus on http://localhost:9090.
-- **LangSmith (optional)**: `LANGSMITH_TRACING=true` + `LANGSMITH_API_KEY` trace every LangChain/LangGraph call.
+- **LangSmith (optional)**: see below.
+
+### LangSmith
+
+Every LangChain/LangGraph call (retrieval, rewrite, LLM generation) can be traced in [LangSmith](https://smith.langchain.com):
+
+```bash
+# .env
+LANGSMITH_TRACING=true
+LANGSMITH_API_KEY=lsv2_...
+LANGSMITH_PROJECT=semantic-rag-demo
+# LANGSMITH_ENDPOINT=https://eu.api.smith.langchain.com   # EU region
+```
+
+Then `docker compose up -d`. Each question appears as a `semantic_rag` run, tagged `semantic-rag-demo`, with the
+API `request_id` in its metadata: copy it from the UI trace or from a log line to find the matching LangSmith run.
+Tracing is off by default and nothing is sent anywhere unless you enable it.
 
 ## Development (everything in Docker)
 

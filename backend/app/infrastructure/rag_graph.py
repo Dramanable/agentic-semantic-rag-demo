@@ -16,7 +16,7 @@ from langgraph.graph import END, StateGraph
 
 from app.domain.entities import Answer, DoneEvent, ScoredChunk, SourcesEvent, StepEvent, StreamEvent, TokenEvent, TraceStep
 from app.domain.ports import TextGenerator, VectorStore
-from app.infrastructure.observability import RAG_FIRST_TOKEN, RAG_QUESTIONS, RAG_REWRITES, RAG_STEP_DURATION
+from app.infrastructure.observability import RAG_FIRST_TOKEN, current_request_id, RAG_QUESTIONS, RAG_REWRITES, RAG_STEP_DURATION
 
 NO_ANSWER = "I could not find any relevant information in the documents."
 
@@ -67,7 +67,9 @@ class LangGraphRagWorkflow:
             "steps": [],
         }
         final: RagState = initial
-        for mode, payload in self._graph.stream(initial, stream_mode=["custom", "values"]):
+        # Picked up by LangSmith when tracing is enabled: the trace of an answer is found by its request ID.
+        config = {"run_name": "semantic_rag", "tags": ["semantic-rag-demo"], "metadata": {"request_id": current_request_id()}}
+        for mode, payload in self._graph.stream(initial, config=config, stream_mode=["custom", "values"]):
             if mode == "custom":
                 yield payload
             else:
