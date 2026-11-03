@@ -31,3 +31,6 @@ class Settings(BaseSettings):
     top_k: int = 4
     relevance_threshold: float = 0.3
     max_rewrites: int = 1
+    # Confidence buckets on the best source similarity (calibrated for the default local embeddings model)
+    confidence_high: float = 0.6
+    confidence_medium: float = 0.45

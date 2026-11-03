@@ -33,3 +33,7 @@ blockquote { margin: 4px 0 12px; padding-left: 12px; border-left: 3px solid #9ca
 .caret { display: inline-block; width: 8px; height: 1em; margin-left: 2px; vertical-align: text-bottom; background: currentColor; animation: blink 1s steps(2) infinite; }
 @keyframes blink { to { visibility: hidden; } }
 @media (prefers-reduced-motion: reduce) { .caret { animation: none; } }
+.confidence { display: inline-block; margin: 8px 0 0; padding: 2px 10px; border-radius: 999px; font-size: 0.85em; font-weight: 600; cursor: help; }
+.confidence.high { background: rgba(22, 163, 74, 0.15); color: #15803d; }
+.confidence.medium { background: rgba(217, 119, 6, 0.15); color: #b45309; }
+.confidence.low { background: rgba(220, 38, 38, 0.15); color: #b91c1c; }

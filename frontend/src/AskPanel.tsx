@@ -1,5 +1,5 @@
 import { FormEvent, useRef, useState } from "react";
-import { Source, Step, api } from "./api";
+import { Confidence, Source, Step, api } from "./api";
 
 interface Props {
   busy: boolean;
@@ -11,11 +11,12 @@ interface View {
   sources: Source[];
   text: string;
   grounded: boolean;
+  confidence: Confidence | null;
   requestId: string | null;
   state: "streaming" | "done" | "stopped";
 }
 
-const EMPTY: View = { steps: [], sources: [], text: "", grounded: true, requestId: null, state: "streaming" };
+const EMPTY: View = { steps: [], sources: [], text: "", grounded: true, confidence: null, requestId: null, state: "streaming" };
 
 export function AskPanel({ busy, hasDocuments }: Props) {
   const [question, setQuestion] = useState("");
@@ -38,7 +39,7 @@ export function AskPanel({ busy, hasDocuments }: Props) {
           onSources: (sources) => patch((v) => ({ ...v, sources })),
           onToken: (text) => patch((v) => ({ ...v, text: v.text + text })),
           onDone: (a) =>
-            patch((v) => ({ ...v, text: a.answer, grounded: a.grounded, sources: a.sources, steps: a.steps, requestId: a.request_id, state: "done" })),
+            patch((v) => ({ ...v, text: a.answer, grounded: a.grounded, confidence: a.confidence, sources: a.sources, steps: a.steps, requestId: a.request_id, state: "done" })),
         },
         controller.current.signal,
       );
@@ -90,6 +91,14 @@ export function AskPanel({ busy, hasDocuments }: Props) {
             <p className={view.grounded ? "answer" : "answer ungrounded"}>
               {view.text}
               {streaming && <span className="caret" aria-hidden="true" />}
+            </p>
+          )}
+          {view.confidence && view.confidence.level !== "none" && (
+            <p
+              className={`confidence ${view.confidence.level}`}
+              title="How closely the best source matches your question. It measures retrieval, not truth: always check the sources."
+            >
+              {view.confidence.level} confidence · {(view.confidence.score * 100).toFixed(0)}%
             </p>
           )}
           {view.state === "stopped" && <p className="muted">Stopped.</p>}

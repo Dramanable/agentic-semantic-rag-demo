@@ -30,6 +30,20 @@ services:
       target: test
     profiles: [test]
 
+  # RAG evaluation (retrieval quality + confidence): make eval
+  eval:
+    build:
+      context: ./backend
+      target: runtime
+    profiles: [eval]
+    env_file:
+      - path: .env
+        required: false
+    command: python -m app.presentation.evaluation_cli --documents /sample-docs --dataset /eval/dataset.json
+    volumes:
+      - ./sample-docs:/sample-docs:ro
+      - ./eval:/eval:ro
+
   # Observability: docker compose --profile observability up
   prometheus:
     image: prom/prometheus:v2.55.1

@@ -47,7 +47,9 @@ def build_container(settings: Settings) -> Container:
     repository = JsonDocumentRepository(settings.documents_path)
     splitter = LangChainTextSplitter(settings.chunk_size, settings.chunk_overlap)
     indexer = Indexer(splitter, store, repository)
-    workflow = LangGraphRagWorkflow(store, generator, settings.top_k, settings.relevance_threshold, settings.max_rewrites)
+    workflow = LangGraphRagWorkflow(store, generator, settings.top_k, settings.relevance_threshold, settings.max_rewrites,
+        settings.confidence_high, settings.confidence_medium,
+    )
     return Container(
         ingest=IngestDocument(indexer),
         update=UpdateDocument(indexer, repository),

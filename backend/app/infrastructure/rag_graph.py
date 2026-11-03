@@ -14,6 +14,7 @@ from typing import Any, TypedDict
 from langgraph.config import get_stream_writer
 from langgraph.graph import END, StateGraph
 
+from app.domain.confidence import assess_confidence
 from app.domain.entities import Answer, DoneEvent, ScoredChunk, SourcesEvent, StepEvent, StreamEvent, TokenEvent, TraceStep
 from app.domain.ports import TextGenerator, VectorStore
 from app.infrastructure.observability import RAG_FIRST_TOKEN, current_request_id, RAG_QUESTIONS, RAG_REWRITES, RAG_STEP_DURATION
@@ -46,12 +47,16 @@ class LangGraphRagWorkflow:
         top_k: int,
         relevance_threshold: float,
         max_rewrites: int,
+        confidence_high: float = 0.6,
+        confidence_medium: float = 0.45,
     ) -> None:
         self._store = store
         self._generator = generator
         self._top_k = top_k
         self._threshold = relevance_threshold
         self._max_rewrites = max_rewrites
+        self._confidence_high = confidence_high
+        self._confidence_medium = confidence_medium
         self._graph = self._build()
 
     def stream(self, question: str) -> Iterator[StreamEvent]:
@@ -83,6 +88,7 @@ class LangGraphRagWorkflow:
                 sources=final["relevant"],
                 steps=final["steps"],
                 grounded=final["grounded"],
+                confidence=assess_confidence(final["relevant"], self._confidence_high, self._confidence_medium),
             )
         )
 

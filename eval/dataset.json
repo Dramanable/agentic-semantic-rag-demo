@@ -1,0 +1,16 @@
+[
+  {"question": "How does LangGraph model a workflow?", "expected_source": "langgraph.md"},
+  {"question": "What does a conditional edge do?", "expected_source": "langgraph.md"},
+  {"question": "Why can LangGraph express loops that linear chains cannot?", "expected_source": "langgraph.md"},
+  {"question": "What is an embedding?", "expected_source": "langgraph.md"},
+  {"question": "What does ChromaDB store?", "expected_source": "langgraph.md"},
+  {"question": "Which layer depends on no framework?", "expected_source": "architecture.md"},
+  {"question": "Where do the ChromaDB and OpenAI adapters live?", "expected_source": "architecture.md"},
+  {"question": "How are use cases unit tested?", "expected_source": "architecture.md"},
+  {"question": "What happens when no passage is relevant?", "expected_source": "architecture.md"},
+  {"question": "How are the sources of an answer shown?", "expected_source": "architecture.md"},
+  {"question": "What is the capital of Japan?", "expected_source": null},
+  {"question": "How do I bake sourdough bread?", "expected_source": null},
+  {"question": "Who won the 2018 football world cup?", "expected_source": null},
+  {"question": "How much does a Kubernetes cluster cost on AWS?", "expected_source": null}
+]

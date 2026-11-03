@@ -95,6 +95,41 @@ retrieve → grade ─┬─ relevant ──────────────
                   └─ nothing ──────────────────→ give_up → end   ("I don't know", never an invention)
 ```
 
+## Evaluation and confidence
+
+**Confidence of an answer.** Every answer carries a confidence (`high` / `medium` / `low`, plus a 0-1 score) shown as a
+badge in the UI and returned by the API (`confidence`). It is the similarity of the best source, bucketed by
+`CONFIDENCE_HIGH` (0.6) and `CONFIDENCE_MEDIUM` (0.45). It measures *retrieval*, not truth: always check the sources.
+No relevant source means no answer and no confidence (`none`), never an invented answer.
+
+**Evaluating the RAG.** `make eval` indexes `sample-docs/` in a throw-away store, runs the questions of
+`eval/dataset.json` (answerable ones with their expected source, plus questions the documents cannot answer) through the real
+workflow, and prints:
+
+| Metric | Question it answers |
+|---|---|
+| Retrieval hit rate, MRR | Is the expected source found, and ranked first? |
+| Abstention rate | Does it stay silent when the documents cannot answer? |
+| Accuracy by confidence level | **Is the confidence trustworthy?** (is `high` really right more often than `low`?) |
+| Confidence gap | Does confidence separate answerable from unanswerable questions? |
+
+It uses whatever providers your `.env` selects, so you can compare embeddings models or LLMs on the same questions.
+Options: `--json report.json`, `--fail-under 0.8` (exit code 1 below that accuracy, handy in CI).
+
+Reference run with the default local embeddings (14 questions, so indicative only):
+
+| `RELEVANCE_THRESHOLD` | Answerable found | Abstains when it should | `high`/`medium` answers correct |
+|---|---|---|---|
+| **0.30 (default)** | 70 % | 100 % | 4/4 |
+| 0.25 | 80 % | 75 % | 4/4 |
+| 0.20 | 90 % | 75 % | 4/4 |
+
+The threshold is a precision/recall trade-off: lower it and more legitimate questions get an answer, but an unrelated one
+sometimes slips through (at 0.26, with `low` confidence). The default favours never answering wrongly. Calibrate
+`RELEVANCE_THRESHOLD` and the confidence buckets on your own documents and questions.
+Limits: the default `extractive` mode returns passages, so generation faithfulness (hallucination in a model's
+wording) is not measured; evaluate it by plugging in an LLM and extending `app/application/evaluation.py`.
+
 ## Traceability and observability
 
 - **Request ID**: `X-Request-ID` (reused from an upstream proxy, otherwise generated), returned as a
@@ -126,6 +161,7 @@ Tracing is off by default and nothing is sent anywhere unless you enable it.
 ## Development (everything in Docker)
 
 ```bash
+make eval     # RAG quality and confidence report
 make test     # unit and API tests in a dedicated container: no network, no model download
 make up       # build and start (UI on :8080, API proxied under /api)
 make logs     # JSON logs of the API

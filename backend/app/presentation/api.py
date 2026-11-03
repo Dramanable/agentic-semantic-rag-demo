@@ -58,11 +58,17 @@ class StepOut(BaseModel):
     duration_ms: float
 
 
+class ConfidenceOut(BaseModel):
+    score: float
+    level: str
+
+
 class AnswerOut(BaseModel):
     request_id: str
     question: str
     answer: str
     grounded: bool
+    confidence: ConfidenceOut
     sources: list[SourceOut]
     steps: list[StepOut]
 
@@ -97,6 +103,7 @@ def _answer_out(answer: Answer, request_id: str) -> AnswerOut:
         question=answer.question,
         answer=answer.text,
         grounded=answer.grounded,
+        confidence=ConfidenceOut(score=answer.confidence.score, level=answer.confidence.level),
         steps=[StepOut(name=t.name, detail=t.detail, duration_ms=t.duration_ms) for t in answer.steps],
         sources=[SourceOut(source=s.chunk.source, text=s.chunk.text, score=round(s.score, 3)) for s in answer.sources],
     )

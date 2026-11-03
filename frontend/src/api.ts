@@ -8,11 +8,16 @@ export interface Step {
   detail: string;
   duration_ms: number;
 }
+export interface Confidence {
+  score: number;
+  level: "none" | "low" | "medium" | "high";
+}
 export interface Answer {
   request_id: string;
   question: string;
   answer: string;
   grounded: boolean;
+  confidence: Confidence;
   sources: Source[];
   steps: Step[];
 }

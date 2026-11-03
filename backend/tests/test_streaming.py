@@ -86,6 +86,7 @@ def test_sse_endpoint_streams_typed_events_and_ends_with_done():
         assert names[-1] == "done" and "sources" in names and names.index("sources") < names.index("token")
         done = events[-1][1]
         assert done["request_id"] == "abc123" and done["grounded"] and done["answer"] == "answer(1)"
+        assert done["confidence"] == {"score": 1.0, "level": "high"}
         assert "".join(d["text"] for n, d in events if n == "token").strip() == done["answer"]
 
 

@@ -1,6 +1,7 @@
 """Domain entities: no framework dependency."""
 
 from dataclasses import dataclass, field
+from typing import Literal
 
 
 @dataclass(frozen=True)
@@ -36,6 +37,20 @@ class TraceStep:
     duration_ms: float
 
 
+ConfidenceLevel = Literal["none", "low", "medium", "high"]
+
+
+@dataclass(frozen=True)
+class Confidence:
+    """How closely the best source matches the question (retrieval confidence, not a guarantee of truth)."""
+
+    score: float  # 0..1
+    level: ConfidenceLevel
+
+
+NO_CONFIDENCE = Confidence(score=0.0, level="none")
+
+
 @dataclass
 class Answer:
     question: str
@@ -43,6 +58,7 @@ class Answer:
     sources: list[ScoredChunk] = field(default_factory=list)
     steps: list[TraceStep] = field(default_factory=list)
     grounded: bool = True  # False: no relevant source, no invented answer
+    confidence: Confidence = NO_CONFIDENCE
 
 
 @dataclass(frozen=True)

@@ -17,6 +17,7 @@ def test_full_flow_ingest_ask_list_delete():
         assert c.get("/api/documents").json()[0]["chunks"] == 1
         a = c.post("/api/ask", json={"question": "where the cat sleeps"}).json()
         assert a["grounded"] and a["sources"][0]["source"] == "cats.txt"
+        assert a["confidence"]["level"] in ("high", "medium", "low")
         assert c.delete(f"/api/documents/{doc_id}").status_code == 204
         assert c.delete(f"/api/documents/{doc_id}").status_code == 404
 
