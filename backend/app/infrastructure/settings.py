@@ -24,8 +24,10 @@ class Settings(BaseSettings):
     collection: str = "documents"
 
     documents_path: str = "./data/documents"
-    chunk_size: int = 600
-    chunk_overlap: int = 80
+    # Kept short on purpose: the default local embeddings model only reads ~128 tokens (~500 characters),
+    # anything beyond is silently ignored and would never be searchable.
+    chunk_size: int = 400
+    chunk_overlap: int = 50
     top_k: int = 4
     relevance_threshold: float = 0.3
     max_rewrites: int = 1
