@@ -1,0 +1,35 @@
+:root { color-scheme: light dark; font-family: system-ui, sans-serif; line-height: 1.5; }
+body { margin: 0; }
+main { max-width: 760px; margin: 0 auto; padding: 24px 16px 64px; }
+h1 { margin-bottom: 0; }
+section { margin-top: 28px; }
+.muted { color: #6b7280; font-size: 0.9em; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; }
+input, textarea { font: inherit; padding: 10px 12px; border: 1px solid #9ca3af; border-radius: 8px; min-width: 0; box-sizing: border-box; }
+form.row input { flex: 1; }
+button, .button { padding: 10px 16px; font: inherit; border: 0; border-radius: 8px; background: #2563eb; color: #fff; cursor: pointer; display: inline-block; }
+button.secondary, .button.secondary { background: transparent; color: #2563eb; border: 1px solid #2563eb; }
+button.danger { color: #dc2626; border-color: #dc2626; }
+button.link { background: none; color: #2563eb; padding: 4px 8px; }
+button.link.danger { color: #dc2626; }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+.editor { display: grid; gap: 12px; margin: 16px 0; padding: 16px; border: 1px solid #9ca3af; border-radius: 12px; }
+.editor label { display: grid; gap: 4px; font-weight: 600; }
+.editor textarea { resize: vertical; font-family: ui-monospace, monospace; font-weight: 400; }
+.documents { list-style: none; padding: 0; margin: 16px 0 0; }
+.documents li { display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap; padding: 8px 0; border-bottom: 1px solid rgba(156, 163, 175, 0.4); }
+.documents .name { font-weight: 600; word-break: break-all; }
+.documents .actions { margin-left: auto; }
+.facts { display: grid; grid-template-columns: max-content 1fr; gap: 4px 16px; margin: 0 0 12px; }
+.facts dt { color: #6b7280; }
+.facts dd { margin: 0; }
+.error { color: #dc2626; }
+.answer { padding: 12px 14px; border-left: 4px solid #16a34a; background: rgba(22, 163, 74, 0.08); white-space: pre-wrap; }
+.answer.ungrounded { border-color: #d97706; background: rgba(217, 119, 6, 0.1); }
+.badge { font-size: 0.8em; padding: 2px 8px; border-radius: 999px; background: rgba(37, 99, 235, 0.12); }
+blockquote { margin: 4px 0 12px; padding-left: 12px; border-left: 3px solid #9ca3af; font-size: 0.92em; }
+.trace code { font-weight: 600; }
+@media (max-width: 480px) { form.row { flex-direction: column; } .documents .actions { margin-left: 0; } }
+.caret { display: inline-block; width: 8px; height: 1em; margin-left: 2px; vertical-align: text-bottom; background: currentColor; animation: blink 1s steps(2) infinite; }
+@keyframes blink { to { visibility: hidden; } }
+@media (prefers-reduced-motion: reduce) { .caret { animation: none; } }

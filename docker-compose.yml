@@ -1,0 +1,45 @@
+services:
+  api:
+    build:
+      context: ./backend
+      target: runtime
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      # Optional LangChain/LangGraph tracing (LangSmith): see .env.example
+      LANGSMITH_TRACING: ${LANGSMITH_TRACING:-false}
+    # Lets the container reach a local Ollama / LM Studio running on the host.
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - data:/data
+
+  web:
+    build: ./frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      api:
+        condition: service_healthy
+
+  # API tests, in Docker: docker compose --profile test run --rm tests
+  tests:
+    build:
+      context: ./backend
+      target: test
+    profiles: [test]
+
+  # Observability: docker compose --profile observability up
+  prometheus:
+    image: prom/prometheus:v2.55.1
+    profiles: [observability]
+    volumes:
+      - ./observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    depends_on:
+      - api
+
+volumes:
+  data:
