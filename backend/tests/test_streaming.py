@@ -66,11 +66,11 @@ def test_langchain_generator_streams_pieces_not_one_block():
     assert len(pieces) > 1 and "".join(pieces) == "hello"
 
 
-def test_extractive_generator_streams_word_by_word_and_loses_nothing():
+def test_extractive_generator_streams_the_best_passage_word_by_word():
     gen = llm_providers.build("extractive", Settings())
     pieces = list(gen.stream_answer("q", ["the cat sleeps", "it rains"]))
     assert len(pieces) > 4
-    assert "".join(pieces) == "Closest passages:\n\n• the cat sleeps\n\n• it rains"
+    assert "".join(pieces) == "Most relevant passage (no LLM configured):\n\nthe cat sleeps"
 
 
 # --- HTTP: Server-Sent Events -------------------------------------------------

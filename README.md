@@ -2,10 +2,11 @@
 
 Ask questions to your own documents. **Semantic search** (embeddings + ChromaDB), a
 **LangGraph** workflow (retrieve → grade → rewrite → answer), a **FastAPI** API and a
-**React** UI, built with **clean architecture** and fully **dockerized**.
+**React** UI (Tailwind + shadcn/ui), built with **clean architecture** and fully **dockerized**.
 
 - **Any LLM provider**: OpenAI, Anthropic, Mistral, Ollama, or any OpenAI-compatible server (Groq, vLLM, LM Studio…).
 - **Any vector store**: ChromaDB or in-memory out of the box; add another one in ~10 lines.
+- **Modern UI**: React + Tailwind CSS + shadcn/ui components (Radix, Lucide icons), light/dark theme, responsive down to phones. shadcn/ui is not a CDN library: its components live in `frontend/src/components/ui/`, and Tailwind is compiled at build time, so the UI also works offline.
 - **Streaming answers**: sources and reasoning steps appear first, then the answer token by token (SSE), with a Stop button.
 - **Manage your data**: add, edit and delete documents; inspect, empty and re-index the vector store.
 - **Traceable and observable**: request IDs, timed reasoning steps, JSON logs, Prometheus metrics.
@@ -17,8 +18,23 @@ cp .env.example .env     # optional: without any key the demo runs locally
 docker compose up --build
 ```
 
-Open http://localhost:8080, upload the files from `sample-docs/`, then ask
-*"How can hallucinations be reduced?"*.
+Open http://localhost:8080 and upload the files from `sample-docs/` (the GDPR can take a minute or two to index on CPU),
+then ask *"When is the processing of personal data lawful?"* or *"What is the withdrawal period for distance contracts?"*.
+
+### Sample documents: European legislation
+
+Legal texts are what semantic search is made for: people ask in everyday words, the law answers in its own. `sample-docs/` holds
+official texts of the European Union (EUR-Lex, reuse authorised under Commission Decision 2011/833/EU):
+
+| File | Text |
+|---|---|
+| `gdpr.md` | General Data Protection Regulation (EU) 2016/679, all 99 articles |
+| `ai-act.md` | AI Act (EU) 2024/1689, selected articles (scope, prohibited practices, high-risk requirements, transparency, penalties) |
+| `consumer-rights-directive.md` | Consumer Rights Directive 2011/83/EU, all 35 articles |
+
+Each passage is stored with its heading path (`Regulation > Article 17 - Right to erasure`), so "Article 5" of the GDPR and of the
+AI Act stay distinguishable, and a long article keeps its title on every chunk. Any other text works too, in any language
+the embeddings model supports (the default one is multilingual).
 
 - **No API key**: local multilingual embeddings (FastEmbed) and *extractive* answers (the retrieved passages, nothing invented).
 - **With an LLM**: set `LLM_PROVIDER` (and `LLM_API_KEY`) in `.env`. Embeddings are chosen separately (`EMBEDDINGS_PROVIDER`).
@@ -116,17 +132,19 @@ workflow, and prints:
 It uses whatever providers your `.env` selects, so you can compare embeddings models or LLMs on the same questions.
 Options: `--json report.json`, `--fail-under 0.8` (exit code 1 below that accuracy, handy in CI).
 
-Reference run with the default local embeddings (14 questions, so indicative only):
+Reference run on the sample legislation (19 questions: 14 answerable, 5 not; default local embeddings, so indicative only):
 
-| `RELEVANCE_THRESHOLD` | Answerable found | Abstains when it should | `high`/`medium` answers correct |
+| `RELEVANCE_THRESHOLD` | Right source found | Abstains when it should | Overall accuracy |
 |---|---|---|---|
-| **0.30 (default)** | 70 % | 100 % | 4/4 |
-| 0.25 | 80 % | 75 % | 4/4 |
-| 0.20 | 90 % | 75 % | 4/4 |
+| 0.30 | 100 % | 60 % | 89 % |
+| 0.40 | 100 % | 100 % | 100 % |
+| **0.45 (default)** | 100 % | 100 % | 100 % |
 
-The threshold is a precision/recall trade-off: lower it and more legitimate questions get an answer, but an unrelated one
-sometimes slips through (at 0.26, with `low` confidence). The default favours never answering wrongly. Calibrate
-`RELEVANCE_THRESHOLD` and the confidence buckets on your own documents and questions.
+At 0.30 the two out-of-corpus *legal-sounding* questions (French corporate tax rate, German minimum wage) were answered from
+unrelated GDPR passages, and the badge flagged them `low` confidence (0/2 correct), while all 13 `high` answers were right.
+Correct questions scored 0.50 or more and out-of-corpus ones 0.40 or less, so 0.45 sits in the middle of the gap. That
+calibration was done on these same questions: **recalibrate `RELEVANCE_THRESHOLD` and the confidence buckets on your own
+documents and questions** (short, informal documents usually score lower and need a lower threshold).
 Limits: the default `extractive` mode returns passages, so generation faithfulness (hallucination in a model's
 wording) is not measured; evaluate it by plugging in an LLM and extending `app/application/evaluation.py`.
 

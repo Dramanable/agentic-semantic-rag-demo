@@ -29,7 +29,8 @@ class Settings(BaseSettings):
     chunk_size: int = 400
     chunk_overlap: int = 50
     top_k: int = 4
-    relevance_threshold: float = 0.3
+    # Calibrated with `make eval` on the legislation sample set; short or informal documents usually need less.
+    relevance_threshold: float = 0.45
     max_rewrites: int = 1
     # Confidence buckets on the best source similarity (calibrated for the default local embeddings model)
     confidence_high: float = 0.6

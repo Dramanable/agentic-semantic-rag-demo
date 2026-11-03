@@ -45,10 +45,10 @@ class LangChainTextGenerator:
 
 
 class ExtractiveTextGenerator:
-    """No-LLM mode: returns the retrieved passages, invents nothing."""
+    """No-LLM mode: returns the best retrieved passage (the sources list shows the others), invents nothing."""
 
     def stream_answer(self, question: str, passages: list[str]) -> Iterator[str]:
-        text = "Closest passages:\n\n" + "\n\n".join(f"• {p}" for p in passages)
+        text = f"Most relevant passage (no LLM configured):\n\n{passages[0]}"
         yield from re.findall(r"\s*\S+", text)  # word by word, like a model would
 
     def rewrite(self, question: str) -> str:
